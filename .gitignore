@@ -1,4 +1,5 @@
 .vscode/
 module/test
+module/net
 module/*.o
 module/*.a
