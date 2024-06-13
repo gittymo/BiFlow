@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiFlow Demonstration Form</title>
+</head>
+<link rel="stylesheet" href="./biflow.css" />
+
+<body>
+<div class="BiFlowContainer" style="height:800px; width: 95%">
+<h1>Hello world!</h1>
+<div class="BiFlowContainer">
+    <div class="BiFlowComponent"><h1>ID</h1><p>300807</p></div>
+    <div class="BiFlowComponent"><h1>Username</h1><input /></div>
+    <div class="BiFlowComponent"><h1>Profile Image</h1><input type="file" /></div>
+    <div class="BiFlowComponent">
+        <h1>Postcode</h1>
+        <input minlength="5" maxlength="7" pattern="^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([AZa-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))[0-9][A-Za-z]{2})$" />
+    </div>
+</div>
+
+<div class="BiFlowContainer">Another Container</div>
+<h1>Test</h1>
+</div>
+</body>
+</html>

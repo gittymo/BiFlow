@@ -1,0 +1,107 @@
+div.BiFlowContainer {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+
+    border: var(--container_border_style);
+    border-radius: var(--container_border_radius);
+
+    padding: var(--container_border_radius);
+    margin: 0px;
+
+    background-color: var(--container_background_colour);
+
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+    overflow-y: scroll;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.25em;
+    padding: var(--component_border_radius);
+    margin: 0px;
+    background-color: var(--component_background_colour);
+    border-radius: var(--container_border_radius);
+    border: var(--container_border_style);
+    border-bottom: none;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+div.BiFlowContainer div.BiFlowContainer {
+    background-color: var(--component_background_colour);
+    position: relative;
+    left: 0%;
+    top: 0%;
+    transform: none;
+    margin: 0px;
+    padding: var(--component_border_radius);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--component_border_radius);
+}
+
+div.BiFlowContainer + div.BiFlowContainer {
+    margin-top: var(--component_border_radius);
+}
+
+div.BiFlowContainer + h1 {
+    margin-top: 4px;
+    border: none !important;
+    border-bottom-left-radius: var(--container_border_radius) !important;
+    border-bottom-right-radius: var(--container_border_radius) !important;
+}
+
+div.BiFlowComponent {
+    border: 1px solid black;
+    border-radius: var(--container_border_radius);
+    padding: var(--component_border_radius);
+    margin: 0px;
+    border-color: var(--component_border_style);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1 0 auto;
+}
+
+div.BiFlowContainer h1 + div.BiFlowContainer {
+    border-top: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+div.BiFlowComponent h1 {
+    font-size: 1em;
+    font-weight: bold;
+    padding: 0px;
+    border: none;
+    margin-bottom: var(--component_border_radius);
+}
+
+div.BiFlowComponent h1 + p,input {
+    background-color: var(--input_background_colour);
+    border-radius: var(--component_border_radius);
+    border: 1px solid var(--component_border_style);
+    padding: var(--component_border_radius);
+    margin: 0px;
+    flex-grow: 1;
+}
+
+input:invalid {
+    background-color: var(--invalid_input_background_colour);
+}
+
+input:valid {
+    border: 1px solid var(--component_border_style);
+    background-color: var(--input_background_colour);
+}
+
+p {
+    line-height: 1.5em;
+}

@@ -1,0 +1,15 @@
+@import url(./_bipri.css);
+
+:root {
+    --container_border_radius: 8px;
+    --container_background_colour: #CCEEFF;
+    --container_border_style: 1px solid black;
+
+    --component_border_radius: 4px;
+    --component_gap: 4px;
+    --component_background_colour: aliceblue;
+    --component_border_style: #66AACC;
+
+    --input_background_colour: white;
+    --invalid_input_background_colour: #ffcccc;
+}

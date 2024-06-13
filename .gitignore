@@ -1,0 +1,4 @@
+.vscode/
+module/test
+module/*.o
+module/*.a
