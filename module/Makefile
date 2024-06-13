@@ -17,7 +17,7 @@ release: SUFFIX=
 release: releasedeps dirs test module
 
 module: $(APPNAME).c
-	$(GCC) $(CFLAGS) -pthread -o $(BINDIR)/$(APPNAME) $(APPNAME).c \
+	$(GCC) $(CFLAGS) -pthread -o $(BINDIR)/$(APPNAME)$(SUFFIX) $(APPNAME).c \
 		-I./$(LIBJSONDIR) -I./$(LIBTHREADMANDIR) \
 		-L./$(LIBJSONDIR) -L./$(LIBTHREADMANDIR) \
 		-ljson$(SUFFIX) -lthreadman$(SUFFIX)
@@ -33,8 +33,8 @@ debugdeps:
 clean: dirs
 	cd $(LIBJSONDIR) && make clean
 	cd $(LIBTHREADMANDIR) && make clean
-	rm -rf bin/$(APPNAME)
-	rm -rf test/$(APPNAME)
+	rm -rf bin/$(APPNAME)*
+	rm -rf test/$(APPNAME)*
 
 .PHONY: dirs
 

@@ -4,13 +4,13 @@ SUFFIX=d
 
 LIBNAME=libthreadman
 
-debug: clean $(LIBNAME)$(SUFFIX)
+debug: $(LIBNAME)$(SUFFIX)
 
 release: CFLAGS=-O2
 
 release: SUFFIX=
 
-release: clean $(LIBNAME)$(SUFFIX)
+release: $(LIBNAME)$(SUFFIX)
 
 $(LIBNAME)$(SUFFIX).o: $(LIBNAME).c $(LIBNAME).h
 	$(GCC) $(CFLAGS) -c -o $(LIBNAME)$(SUFFIX).o $(LIBNAME).c
