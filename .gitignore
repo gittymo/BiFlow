@@ -1,6 +1,6 @@
 .vscode/
-module/test
-module/net
-module/*.o
-module/*.a
+module/libjson/*.o
+module/libjson/*.a
+module/libthreadman/*.o
+module/libthreadman/*.a
 out/

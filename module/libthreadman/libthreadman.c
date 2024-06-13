@@ -5,7 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "threadman.h"
+#include "libthreadman.h"
 
 int worker_thread_id = 0;
 

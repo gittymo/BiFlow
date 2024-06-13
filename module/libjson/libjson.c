@@ -4,7 +4,7 @@
 #include <float.h>
 #include <sys/stat.h>
 
-#include "json.h"
+#include "libjson.h"
 
 #define JSON_OUTPUT_BUFFER_BLOCK_SIZE (4 * JSON_MAX_STRING_VALUE_LENGTH)
 #define JSON_ARRAY_BLOCK_SIZE 256
@@ -451,6 +451,7 @@ JSONOutputBuffer * _JSONWriteElementToBuffer(JSONElement * element, JSONOutputBu
             length = t;
             _JSONFreeBuffer(tob);
         } break;
+        default:{}
     }
 
     temp_buffer[length] = 0;
@@ -679,59 +680,59 @@ char * _JSONGetNumberAsString(double number, int dp)
 
 double JSONGetValueAsDouble(JSONElement * element)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return 0;
+    if (!_JSONElementIsValid(element)) return 0;
     switch (element->value_type) {
         case JSONValueType_Null : return 0;
         case JSONValueType_Boolean : return element->data.boolean ? 1.0 : 0.0;
         case JSONValueType_Number : return element->data.number;
         case JSONValueType_NameValuePair : return JSONGetValueAsDouble((JSONElement *) element->data.namevaluepair[1]);
         case JSONValueType_String : return _JSONGetNumberFromString(element->data.string);
+        default: return 0;
     }
-    return 0;
 }
 
 long JSONGetValueAsLong(JSONElement * element)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return 0;
+    if (!_JSONElementIsValid(element)) return 0;
     switch (element->value_type) {
         case JSONValueType_Null : return 0;
         case JSONValueType_Boolean : return element->data.boolean ? 1 : 0;
         case JSONValueType_Number : return (long) element->data.number;
         case JSONValueType_NameValuePair : return (long) JSONGetValueAsLong((JSONElement *) element->data.namevaluepair[1]);
         case JSONValueType_String : return (long) _JSONGetNumberFromString(element->data.string);
+        default: return 0;
     }
-    return 0;
 }
 
 bool JSONGetValueAsBoolean(JSONElement * element)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return false;
+    if (!_JSONElementIsValid(element)) return false;
     switch (element->value_type) {
         case JSONValueType_Null : return false;
         case JSONValueType_Boolean : return element->data.boolean;
         case JSONValueType_Number : return element->data.number != 0 ? true : false;
         case JSONValueType_NameValuePair : return JSONGetValueAsBoolean((JSONElement *) element->data.namevaluepair[1]);
         case JSONValueType_String : return _JSONGetNumberFromString(element->data.string) != 0 ? true : false;
+        default: return false;
     }
-    return false;
 }
 
 char * JSONGetValueAsString(JSONElement * element, int dp)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return NULL;
+    if (!_JSONElementIsValid(element)) return NULL;
     switch (element->value_type) {
         case JSONValueType_Null : return NULL;
         case JSONValueType_Boolean : return _JSONCopyString(element->data.boolean ? "true" : "false", NULL);
         case JSONValueType_Number : return _JSONGetNumberAsString(element->data.number, dp);
         case JSONValueType_NameValuePair : return JSONGetValueAsString((JSONElement *) element->data.namevaluepair[1], dp);
         case JSONValueType_String : return _JSONCopyString(element->data.string, NULL);
+        default: return NULL;
     }
-    return NULL;
 }
 
 bool JSONSetValueUsingDouble(JSONElement * element, double value, int dp)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return NULL;
+    if (!_JSONElementIsValid(element)) return false;
     switch (element->value_type) {
         case JSONValueType_Null : return true;
         case JSONValueType_Boolean : element->data.boolean = value != 0; return true;
@@ -742,13 +743,13 @@ bool JSONSetValueUsingDouble(JSONElement * element, double value, int dp)
             element->data.string = _JSONGetNumberAsString(value, dp);
             return true;
         }
+        default: return false;
     }
-    return false;
 }
 
 bool JSONSetValueUsingLong(JSONElement * element, long value)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return NULL;
+    if (!_JSONElementIsValid(element)) return false;
     switch (element->value_type) {
         case JSONValueType_Null : return true;
         case JSONValueType_Boolean : element->data.boolean = value != 0; return true;
@@ -759,13 +760,13 @@ bool JSONSetValueUsingLong(JSONElement * element, long value)
             element->data.string = _JSONGetNumberAsString(value, 0);
             return true;
         }
+        default: return false;
     }
-    return false;
 }
 
 bool JSONSetValueUsingBoolean(JSONElement * element, bool value)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return NULL;
+    if (!_JSONElementIsValid(element)) return false;
     switch (element->value_type) {
         case JSONValueType_Null : return true;
         case JSONValueType_Boolean : element->data.boolean = value;
@@ -776,13 +777,13 @@ bool JSONSetValueUsingBoolean(JSONElement * element, bool value)
             element->data.string = _JSONCopyString(value ? "true" : "false", NULL);
             return true;
         }
+        default: return false;
     }
-    return false;
 }
 
 bool JSONSetValueUsingString(JSONElement * element, char * string)
 {
-    if (!_JSONElementIsValid(element) || JSONIsContainerElement(element)) return NULL;
+    if (!_JSONElementIsValid(element)) return false;
     switch (element->value_type) {
         case JSONValueType_Null : return true;
         case JSONValueType_Boolean : element->data.boolean = string[0] != 0 ? true : false;
@@ -793,6 +794,6 @@ bool JSONSetValueUsingString(JSONElement * element, char * string)
             element->data.string = _JSONCopyString(string, NULL);
             return true;
         }
+        default: return false;
     }
-    return false;
 }
