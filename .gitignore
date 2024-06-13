@@ -4,3 +4,5 @@ module/libjson/*.a
 module/libthreadman/*.o
 module/libthreadman/*.a
 out/
+bin/
+test/
