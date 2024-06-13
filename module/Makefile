@@ -2,6 +2,9 @@ GCC=clang
 CFLAGS=-g -Wall
 SUFFIX=d
 
+LIBJSONDIR=libjson
+LIBTHREADMANDIR=libthreadman
+
 APPNAME=test
 
 debug: debugdeps
@@ -9,15 +12,15 @@ debug: debugdeps
 release: releasedeps
 
 releasedeps:
-	cd libjson && make release
-	cd libthreadman && make release
+	cd $(LIBJSONDIR) && make release
+	cd $(LIBTHREADMANDIR) && make release
 
 debugdeps:
-	cd libjson && make debug
-	cd libthreadman && make debug
+	cd $(LIBJSONDIR) && make debug
+	cd $(LIBTHREADMANDIR) && make debug
 
 .PHONY: clean
 
 clean:
-	cd libjson && make clean
-	cd libthreadman && make clean
+	cd $(LIBJSONDIR) && make clean
+	cd $(LIBTHREADMANDIR) && make clean
