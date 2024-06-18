@@ -13,9 +13,12 @@ typedef enum bscript_value_types {
 } BScriptValueType;
 
 typedef struct bscript_value_interface {
-    struct bscript_value * (*combineFunction)(struct bscript_value *, struct bscript_value *);
+    struct bscript_value * (*plusOperator)(struct bscript_value *, struct bscript_value *);
     bool (* freeFunction)(struct bscript_value *);
-    char * (* asCharString)(struct bscript_value *, size_t *);
+    bool (* valueAsBoolean)(struct bscript_value *);
+    double (* valueAsNumber)(struct bscript_value *);
+    char (* valueAsString)(struct bscript_value *);
+    bool (* addToArray)(struct bscript_value *, struct bscript_value *);
 } BScriptValueInterface;
 
 typedef struct bscript_value {

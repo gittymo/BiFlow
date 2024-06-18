@@ -10,8 +10,8 @@ BScriptValue * BScriptCreateNumberValue(double number, int decimal_places)
     if (value) {
         value->data.number = BScriptCreateNumber(number, decimal_places);
         value->methods.freeFunction = BScriptFreeNumberValue;
-        value->methods.combineFunction = NULL; //TODO: Add number combination function.
-        value->methods.asCharString = BScriptGetNumberValueAsCharString;
+        value->methods.plusOperator = NULL; //TODO: Add number combination function.
+        value->methods.valueAsString = BScriptGetNumberValueAsCharString;
     } 
     return value;
 }

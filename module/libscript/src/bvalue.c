@@ -40,8 +40,8 @@ bool BScriptFreeValue(BScriptValue * value)
     value->is_array = false;
     value->type = BScriptTypeUndefined;
     value->methods.freeFunction = NULL;
-    value->methods.combineFunction = NULL;
-    value->methods.asCharString = NULL;
+    value->methods.plusOperator = NULL;
+    value->methods.valueAsString= NULL;
     free(value);
     return true;
 }

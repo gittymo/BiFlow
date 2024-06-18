@@ -11,7 +11,7 @@ BScriptValue * BScriptCreateStringValue(char * string)
     if (value) {
         value->data.string = BScriptCreateString(string);
         value->methods.freeFunction = BScriptFreeStringValue;
-        value->methods.combineFunction = NULL; //TODO: Add string combination function.
+        value->methods.plusOperator = NULL; //TODO: Add string combination function.
         value->methods.asCharString = NULL; //TODO: Add as char string function.
     } 
     return value;
