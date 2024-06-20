@@ -2,6 +2,7 @@
 #include <string.h>
 int main(int argc, char ** argv)
 {
+    LibMemAllowLocals();
     const int TESTS = 17;
     char * text[TESTS];
     for (int i = 0; i < TESTS; i++) {
@@ -17,10 +18,5 @@ int main(int argc, char ** argv)
     }
 
     LibMemFreeLocals();
-
-    /*for (int i = 0; i < TESTS; i++) {
-        LibMemFree(text[i]);
-    }*/
-
     exit(EXIT_SUCCESS);
 }
