@@ -17,7 +17,12 @@ typedef struct bscript_value_interface {
     struct bscript_value * (*minusOperator)(struct bscript_value *, struct bscript_value *);
     struct bscript_value * (*multiplyOperator)(struct bscript_value *, struct bscript_value *);
     struct bscript_value * (*divideOperator)(struct bscript_value *, struct bscript_value *);
-    struct bscript_value * (*equalsOperator)(struct bscript_value *, struct bscript_value *);
+    struct bscript_value * (*modulusOperator)(struct bscript_value *, struct bscript_value *);
+
+    bool (*equalOperator)(struct bscript_value *, struct bscript_value *);
+    bool (*notEqualOperator)(struct bscript_value *, struct bscript_value *);
+    bool (*greaterThanOperator)(struct bscript_value *, struct bscript_value *);
+    bool (*lessThanOperator)(struct bscript_value *, struct bscript_value *);
 
     bool (* valueAsBoolean)(struct bscript_value *);
     double (* valueAsNumber)(struct bscript_value *);
@@ -25,7 +30,7 @@ typedef struct bscript_value_interface {
 
     bool (* addToArray)(struct bscript_value *, struct bscript_value *);
 
-    bool (* freeFunction)(struct bscript_value *);
+    bool (* free)(struct bscript_value *);
 } BScriptValueInterface;
 
 typedef struct bscript_value {
