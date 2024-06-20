@@ -16,6 +16,7 @@ typedef struct libmem_allocation {
     size_t references_count;
     size_t references_buffer_size;
     bool is_local;
+    size_t stack_level;
 } MemoryAllocation;
 
 typedef struct _libmem_memory_block {
@@ -25,6 +26,7 @@ typedef struct _libmem_memory_block {
     MemoryAllocation ** allocations;
     size_t allocations_count;
     size_t allocations_buffer_size;
+    size_t current_stack_level;
 } MemoryBlock;
 
 typedef struct _libmem_allocation_ref {
@@ -83,7 +85,8 @@ MemoryAllocation * LibMemCreateMemoryAllocation(size_t offset, size_t required_s
 
 MemoryBlock * LibMemCreateMemoryBlock()
 {
-    MemoryBlock * libmem_manager = (MemoryBlock *) malloc(sizeof(MemoryBlock));
+    if (libmem_manager) return libmem_manager;
+    libmem_manager = (MemoryBlock *) malloc(sizeof(MemoryBlock));
     if (libmem_manager) {
         libmem_manager->struct_id = LIBMEM_DATA_STRUCT_ID;
         libmem_manager->data = (char *) malloc(LIBMEM_MEMORY_PAGE_SIZE);
@@ -91,6 +94,7 @@ MemoryBlock * LibMemCreateMemoryBlock()
         libmem_manager->allocations_buffer_size = 256;
         libmem_manager->allocations = (MemoryAllocation **) malloc(sizeof(MemoryAllocation *) * 256);
         libmem_manager->allocations_count = 0;
+        libmem_manager->current_stack_level = 0;
     }
     return libmem_manager;
 }
@@ -192,7 +196,13 @@ void * LibMemAllocLocal(size_t required_size_in_bytes, void ** ref_ptr)
 
     MemoryAllocation * ma = LibMemGetMemoryAllocationFromVoidPtr(ptr, NULL);
     ma->is_local = true;
+    ma->stack_level = libmem_manager->current_stack_level;
     return ptr;
+}
+
+void LibMemAllowLocals() 
+{
+    libmem_manager->current_stack_level++;
 }
 
 bool LibMemFree(void * ptr)
@@ -251,7 +261,7 @@ bool LibMemFreeLocals()
     void ** local_ptrs = (void **) malloc(sizeof(void *) * local_ptrs_count);
     for (size_t a = 0; a < libmem_manager->allocations_count; a++) {
         MemoryAllocation * ma = libmem_manager->allocations[a];
-        if (ma->is_local) {
+        if (ma->is_local && ma->stack_level == libmem_manager->current_stack_level) {
             local_ptrs[i++] = (void *) (libmem_manager->data + ma->offset + sizeof(MemoryAllocationReference **));
             if (i == local_ptrs_count) {
                 local_ptrs_count += 256;
@@ -262,6 +272,7 @@ bool LibMemFreeLocals()
     for (size_t l = 0; l < i; l++) {
         LibMemFree(local_ptrs[l]);
     }
+    if (libmem_manager->current_stack_level > 0) libmem_manager->current_stack_level--;
     return true;
 }
 
