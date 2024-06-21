@@ -4,6 +4,7 @@
 #include <ctype.h>
 
 #include "bglobal.h"
+#include "bscript.h"
 
 char ** BScriptReadLineTokens(char * script, size_t * offset, size_t * tokens_count_ptr)
 {
@@ -48,4 +49,17 @@ char ** BScriptReadLineTokens(char * script, size_t * offset, size_t * tokens_co
     *offset = i;
     *tokens_count_ptr = t;
     return tokens_array;
+}
+
+BScriptException * BScriptCreateException(char * message, int line, BScriptValue * value_ptr, BScriptExceptionType type)
+{
+    BScriptException * ex = (BScriptException *) malloc(sizeof(BScriptException));
+    if (ex) {
+        ex->id = BSCRIPT_DATA_STRUCT_ID;
+        ex->line = line;
+        strncpy(ex->message, message, 1024);
+        ex->type = type;
+        ex->value_ptr = value_ptr;
+    }
+    return ex;
 }
