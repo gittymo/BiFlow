@@ -155,7 +155,9 @@ BScriptValue * BScriptCombineValues(BScriptValue * left_value, BScriptValue * ri
                     }
                 } break;
                 case BScriptTypeNumber : {
-                    right_value_string = BScriptGetNumberValueAsCharString(right_value, &right_value_string_length);
+                    right_value_string = BScriptNumberAsCharString(right_value);
+                    right_value_string_length = 0;
+                    while (right_value_string[right_value_string_length] != 0) right_value_string_length++;
                 } break;
                 case BScriptTypeBoolean : {
                     right_value_string = (char *) malloc(6);
@@ -219,4 +221,5 @@ bool BScriptEqualOperator(BScriptValue * val1, BScriptValue * val2)
         if (val2->array_length != 1) return false;
         return val1->methods.equalOperator(val1, val2->data.array[0]);
     }
+    return false;
 }

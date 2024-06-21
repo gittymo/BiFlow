@@ -4,6 +4,14 @@
 #include "bboolean.h"
 #include "bvalue.h"
 
+BScriptBoolean * BScriptCreateBoolean(bool value);
+void BScriptFreeBoolean(BScriptBoolean * boolean);
+bool BScriptBooleanValueAsBoolean(BScriptValue *value);
+double BScriptBooleanValueAsNumber(BScriptValue *value);
+char * BScriptBooleanValueAsString(BScriptValue *value);
+bool BScriptBooleanAddValueToArray(BScriptValue * array_value, BScriptValue * value_to_add);
+BScriptValue * BScriptBooleanValuePlusOperation(BScriptValue * value1, BScriptValue * value2);
+
 /// @brief Creates and returns a pointer to a new boolean BScriptValue data structure.  The boolean value passed to this 
 ///        function is copied as the boolean value stored in the newly created data structure.
 /// @param boolean_value Value to store in the created BScriptValue data structure.
@@ -15,7 +23,7 @@ BScriptValue * BScriptCreateBooleanValue(bool boolean_value)
     // Check to make sure the data structure exists.
     if (value) {
         // Populate the method pointers with boolean specific functions.
-        value->methods.freeFunction = BScriptFreeBooleanValue;
+        value->methods.free = BScriptFreeBooleanValue;
         value->methods.plusOperator = BScriptBooleanValuePlusOperation;
         value->methods.valueAsString = BScriptBooleanValueAsString;
         value->methods.valueAsNumber = BScriptBooleanValueAsNumber;
@@ -139,7 +147,7 @@ char * BScriptBooleanValueAsString(BScriptValue *value)
             size_t w = 0;
             for (size_t r = 0; r < value->array_length; r++) {
                 bool boolean_value = value->data.array[r]->methods.valueAsBoolean(value->data.array[r]);
-                size_t string_length = sprintf(return_string + w, "%s", value->data.boolean->value ? "true" : "false");
+                size_t string_length = sprintf(return_string + w, "%s", boolean_value ? "true" : "false");
                 w += string_length;
                 return_string[w++] = r < value->array_length - 1 ? ',' : 0;
             }
@@ -193,14 +201,21 @@ bool BScriptBooleanAddValueToArray(BScriptValue * array_value, BScriptValue * va
 BScriptValue * BScriptBooleanValuePlusOperation(BScriptValue * value1, BScriptValue * value2)
 {
     if (!value1 || !value2) return NULL;
-    if (value1->id != BSCRIPT_DATA_STRUCT_ID || value2->id != BSCRIPT_DATA_STRUCT_ID) return NULL;
+    if (value1->id != BSCRIPT_DATA_STRUCT_ID || value1->type != BScriptTypeBoolean) return NULL;
+    if (value2->id != BSCRIPT_DATA_STRUCT_ID) return NULL;
+    if (value1->is_empty && value2->is_empty) return NULL;
+    if (value1->is_empty && !value2->is_empty) return value2;
+    if (!value1->is_empty && value2->is_empty) return value1;
+
     if (!value1->is_array && !value2->is_array) {
-        bool result = value1->methods.valueAsBoolean(value1) & value2->methods.valueAsBoolean(value2);
+        bool result = value1->data.boolean->value & value2->methods.valueAsBoolean(value2);
         return BScriptCreateBooleanValue(result);
-    } else if (value1->is_array) {
+    }
+    if (value1->is_array) {
         value1->methods.addToArray(value1, value2);
         return value1;
     } else if (value2->is_array) {
         return BScriptCombineValuesIntoArray(value1, value2);
     }
+    return NULL;
 }

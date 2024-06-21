@@ -4,6 +4,23 @@
 #include "bglobal.h"
 #include "bvalue.h"
 
+BScriptNumber * BScriptCreateNumber(double value, int decimal_places);
+void BScriptFreeNumber(BScriptNumber * number);
+
+BScriptValue * BScriptNumberPlusOperator(BScriptValue * val1, BScriptValue * val2);
+BScriptValue * BScriptNumberMinusOperator(BScriptValue * val1, BScriptValue * val2);
+BScriptValue * BScriptNumberMultiplyOperator(BScriptValue * val1, BScriptValue * val2);
+BScriptValue * BScriptNumberDivideOperator(BScriptValue * val1, BScriptValue * val2);
+BScriptValue * BScriptNumberModulusOperator(BScriptValue * val1, BScriptValue * val2);
+
+double BScriptNumberGetValueAsDouble(BScriptValue * value);
+
+bool BScriptNumbersEqualOperator(BScriptValue * val1, BScriptValue * val2);
+bool BScriptNumbersNotEqualOperator(BScriptValue * val1, BScriptValue * val2);
+bool BScriptNumberGreaterThanOperator(BScriptValue * val1, BScriptValue * val2);
+bool BScriptNumberLessThanOperator(BScriptValue * val1, BScriptValue * val2);
+
+
 BScriptValue * BScriptCreateNumberValue(double number, int decimal_places)
 {
     BScriptValue * value = BScriptCreateValue(BScriptTypeNumber);
@@ -18,6 +35,7 @@ BScriptValue * BScriptCreateNumberValue(double number, int decimal_places)
         value->methods.modulusOperator = BScriptNumberModulusOperator;
 
         value->methods.valueAsString = BScriptNumberAsCharString;
+        value->methods.valueAsNumber = BScriptNumberGetValueAsDouble;
 
         value->methods.equalOperator = BScriptNumbersEqualOperator;
         value->methods.notEqualOperator = BScriptNumbersNotEqualOperator;
@@ -57,9 +75,9 @@ bool BScriptFreeNumberValue(BScriptValue * value)
     return true;
 }
 
-char * BScriptNumberAsCharString(BScriptValue * number_value, size_t * string_length_ptr)
+char * BScriptNumberAsCharString(BScriptValue * number_value)
 {
-    if (!number_value || number_value->id != BSCRIPT_DATA_STRUCT_ID || number_value->type != BScriptTypeNumber || !string_length_ptr) return NULL;
+    if (!number_value || number_value->id != BSCRIPT_DATA_STRUCT_ID || number_value->type != BScriptTypeNumber) return NULL;
     if (!number_value->data.number) return NULL;
 
     BScriptNumber * number = number_value->data.number;
@@ -77,7 +95,6 @@ char * BScriptNumberAsCharString(BScriptValue * number_value, size_t * string_le
     char * number_string = (char *) malloc(341);
     if (!number_string) return NULL;
 
-    *string_length_ptr = sprintf(number_string, format_string, number->value);
     return number_string;
 }
 

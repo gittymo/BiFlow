@@ -26,7 +26,7 @@ typedef struct bscript_value_interface {
 
     bool (* valueAsBoolean)(struct bscript_value *);
     double (* valueAsNumber)(struct bscript_value *);
-    char (* valueAsString)(struct bscript_value *);
+    char * (* valueAsString)(struct bscript_value *);
 
     bool (* addToArray)(struct bscript_value *, struct bscript_value *);
 

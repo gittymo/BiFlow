@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "bglobal.h"
+
 typedef struct bscript_number {
     int id;
     double value;
@@ -12,8 +14,6 @@ typedef struct bscript_number {
 
 struct bscript_value * BScriptCreateNumberValue(double value, int decimal_places);
 bool BScriptFreeNumberValue(struct bscript_value * value);
-BScriptNumber * BScriptCreateNumber(double value, int decimal_places);
-void BScriptFreeNumber(BScriptNumber * number);
-char * BScriptGetNumberValueAsCharString(struct bscript_value * number_value, size_t * string_length_ptr);
 
+char * BScriptNumberAsCharString(struct bscript_value * number_value);
 #endif

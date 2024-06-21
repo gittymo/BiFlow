@@ -2,7 +2,6 @@
 #define COM_PLUS_MEVANSPN_BSCRIPT_STRING
 
 #include <stdbool.h>
-#include "bglobal.h"
 
 typedef struct bscript_string {
     int id;

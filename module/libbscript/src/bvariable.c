@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "bglobal.h"
+#include "bscript.h"
 #include "bvariable.h"
 #include "bstring.h"
 #include "bboolean.h"

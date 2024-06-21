@@ -3,9 +3,11 @@
 #include <stdio.h>
 
 #include "bglobal.h"
+#include "bscript.h"
 #include "bstring.h"
 #include "bvalue.h"
 
+bool BScriptFreeStringValue(BScriptValue * value);
 char * BScriptStringAsCharString(BScriptValue * value);
 double BScriptStringAsNumber(BScriptValue * value);
 bool BScriptStringAsBoolean(BScriptValue * value);
@@ -80,7 +82,7 @@ char * BScriptStringAsCharString(BScriptValue * value)
     if (!value->is_array && value->data.string->length > 0) char_string_length = value->data.string->length + 1;
     else {
         for (size_t s = 0; s < value->array_length; s++) {
-            BScriptString * bstr = value->data.array[s];
+            BScriptString * bstr = value->data.array[s]->data.string;
             if (bstr->length > 0) char_string_length += bstr->length + 1;
         }
     }
@@ -90,7 +92,7 @@ char * BScriptStringAsCharString(BScriptValue * value)
         w = sprintf(char_string, "%s", value->data.string->data);
     } else {
         for (size_t s = 0; s < value->array_length; s++) {
-            BScriptString * bstr = value->data.array[s];
+            BScriptString * bstr = value->data.array[s]->data.string;
             if (bstr->length > 0) {
                 int chars_written = sprintf(char_string + w, "%s%c", value->data.array[s]->data.string->data, s < value->array_length - 1 ? ',' : 0);
                 w += chars_written;
@@ -106,9 +108,8 @@ double BScriptStringAsNumber(BScriptValue * value)
     if (!value || value->id != BSCRIPT_DATA_STRUCT_ID || value->type != BScriptTypeString || value->is_empty) return 0;
     if (!value->is_array) {
         if (BScriptTokenIsNumericConstant(value->data.string->data)) return atof(value->data.string->data);
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 bool BScriptStringAsBoolean(BScriptValue * value)
