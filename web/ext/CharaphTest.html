@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module">
+        import { Charaph } from "./Charaph.js";
+        document.Charaph = Charaph;
+    </script>
+    <script>
+        function init() {
+            
+            Charaph = document.Charaph;
+
+            var table = new Charaph.Table();
+            var c1 = new Charaph.Table.Cell("Morgan",0);
+            console.log(c1.CellIndex);
+            /*var ds = new DataSet();
+            ds.AddDataEntry(new DataEntry("Morgan", 47));
+            ds.AddDataEntry(new DataEntry("Warrick", 15));
+            ds.AddDataEntry(new DataEntry("Amy", 47));
+            ds.AddDataEntry(new DataEntry("Willow", 5));*/
+
+            /*ds.SortByValue();*/
+            /*ds.SortByLabel();*/
+
+            /*var barchart = new Charaph.BarChart(ds);
+            var canvas = barchart.Canvas;
+            canvas.style = "width: 640px; height: 480px";
+
+            document.body.appendChild(canvas);
+            barchart.Paint();*/
+
+            
+        }
+    </script>
+    <style>
+    canvas {
+        border: 1px solid black;
+        border-radius: 4px;
+    }
+    </style>
+</head>
+<body onload="init()">
+
+</body>
+</html>

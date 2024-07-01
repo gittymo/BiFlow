@@ -6,3 +6,5 @@ module/libthreadman/*.a
 out/
 bin/
 test/
+module/*.o
+module/*.a

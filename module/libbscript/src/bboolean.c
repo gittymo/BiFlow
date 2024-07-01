@@ -24,11 +24,15 @@ BScriptValue * BScriptCreateBooleanValue(bool boolean_value)
     if (value) {
         // Populate the method pointers with boolean specific functions.
         value->methods.free = BScriptFreeBooleanValue;
+        value->methods.typeAsString = BScriptBooleanValueGetTypeAsString;
+
         value->methods.plusOperator = BScriptBooleanValuePlusOperation;
         value->methods.valueAsString = BScriptBooleanValueAsString;
         value->methods.valueAsNumber = BScriptBooleanValueAsNumber;
         value->methods.valueAsBoolean = BScriptBooleanValueAsBoolean;
+
         value->methods.addToArray = BScriptBooleanAddValueToArray;
+
         // Create a BScriptBoolean data structure and set its value to the one passed to this function.
         value->data.boolean = BScriptCreateBoolean(boolean_value);
     }
@@ -218,4 +222,9 @@ BScriptValue * BScriptBooleanValuePlusOperation(BScriptValue * value1, BScriptVa
         return BScriptCombineValuesIntoArray(value1, value2);
     }
     return NULL;
+}
+
+char * BScriptBooleanValueGetTypeAsString(BScriptValue * value)
+{
+    return !value || value->id != BSCRIPT_DATA_STRUCT_ID || value->type != BScriptTypeBoolean ? NULL : "Boolean";
 }

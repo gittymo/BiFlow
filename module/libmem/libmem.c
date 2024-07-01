@@ -276,6 +276,64 @@ bool LibMemFreeLocals()
     return true;
 }
 
+bool LibMemResize(void * ptr, size_t new_size_bytes)
+{
+    if (!libmem_manager || new_size_bytes == 0) return false;
+    size_t ma_index;
+    MemoryAllocation * ma = LibMemGetMemoryAllocationFromVoidPtr(ptr, &ma_index);
+    if (!LibMem_IsValidMemoryAllocation(ma)) return false;
+    if (new_size_bytes == ma->length) return true;
+    if (new_size_bytes < ma->length) {
+        ma->length = new_size_bytes;
+        ma->length_in_block_bytes = LibMemGetClosestAlignedByteSize(new_size_bytes, LIBMEM_BLOCK_SIZE);
+        return true;
+    } else {
+        if (new_size_bytes < ma->length_in_block_bytes) {
+            ma->length = new_size_bytes;
+            return true;
+        } else {
+            if (ma_index < libmem_manager->allocations_count - 1) {
+                const size_t SPACE_BETWEEN_BLOCKS = libmem_manager->allocations[ma_index + 1]->offset - ma->offset;
+                if (SPACE_BETWEEN_BLOCKS >= new_size_bytes) {
+                    ma->length = new_size_bytes;
+                    ma->length_in_block_bytes = SPACE_BETWEEN_BLOCKS;
+                    return true;
+                }
+            }
+            size_t new_offset = ma->offset;
+            if (libmem_manager->data_size < new_offset + new_size_bytes) {
+                const size_t NEW_DATA_SIZE = LibMemGetClosestAlignedByteSize(new_offset + new_size_bytes, LIBMEM_MEMORY_PAGE_SIZE);
+                char * new_data = (char *) realloc(libmem_manager->data, NEW_DATA_SIZE);
+                if (new_data) {
+                    libmem_manager->data = new_data;
+                    libmem_manager->data_size = NEW_DATA_SIZE;
+                } else return false;
+            }
+
+            for (size_t mi = ma_index; mi < libmem_manager->allocations_count - 1; mi++) {
+                MemoryAllocation * ta = libmem_manager->allocations[mi + 1];
+                new_offset = ta->offset + ta->length_in_block_bytes;
+                MemoryAllocationReference ** mar = (MemoryAllocationReference **) (libmem_manager->data + ta->offset);
+                (*mar)->allocation_index = mi;
+                libmem_manager->allocations[mi] = libmem_manager->allocations[mi + 1];
+            }
+
+            if (new_offset != ma->offset) {
+                memmove(libmem_manager->data + new_offset, libmem_manager->data + ma->offset, ma->length);
+                ma->offset = new_offset;
+            }
+
+            libmem_manager->allocations[libmem_manager->allocations_count - 1] = ma;
+            ma->length = new_size_bytes;
+            ma->length_in_block_bytes = LibMemGetClosestAlignedByteSize(new_size_bytes, LIBMEM_BLOCK_SIZE);
+            MemoryAllocationReference ** mar = (MemoryAllocationReference **) (libmem_manager->data + ma->offset);
+            (*mar)->allocation_index = libmem_manager->allocations_count - 1;
+
+            LibMemUpdateRefs(libmem_manager);
+        }
+    }
+}
+
 void LibMemExit()
 {
     if (!LibMem_IsValidMemoryBlock(libmem_manager)) return;
