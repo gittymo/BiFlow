@@ -1,19 +1,12 @@
 #include "global.h"
 #include "iworkerthreadjob.h"
+#include "iworkerthreadjobprovider.h"
 
 static size_t _iworker_thread_job_id = 0;
 
-typedef struct _iworker_thread_job_provider {
-    int struct_id;
-    IWorkerThreadJob ** jobs;
-    size_t jobs_count;
-    size_t next_job_index;
-    size_t jobs_array_size;
-} IWorkThreadJobProvider;
-
-IWorkThreadJobProvider * IWorkerThreadJobProviderCreate()
+IWorkerThreadJobProvider * IWorkerThreadJobProviderCreate()
 {
-    IWorkThreadJobProvider * iwtjp = (IWorkThreadJobProvider *) malloc(sizeof(IWorkThreadJobProvider));
+    IWorkerThreadJobProvider * iwtjp = (IWorkerThreadJobProvider *) malloc(sizeof(IWorkerThreadJobProvider));
     if (iwtjp) {
         iwtjp->jobs = (IWorkerThreadJob **) malloc(sizeof(IWorkerThreadJob *) * 256);
         if (!iwtjp->jobs) {
@@ -29,12 +22,12 @@ IWorkThreadJobProvider * IWorkerThreadJobProviderCreate()
     return iwtjp;
 }
 
-bool IWorkerThreadJobProviderIsValid(IWorkThreadJobProvider * iwtjp)
+bool IWorkerThreadJobProviderIsValid(IWorkerThreadJobProvider * iwtjp)
 {
     return iwtjp && iwtjp->struct_id == ITHREAD_DATA_STRUCT_ID;
 }
 
-bool IWorkerThreadJobProviderAddJob(IWorkThreadJobProvider * iwtjp, void * job_data)
+bool IWorkerThreadJobProviderAddJob(IWorkerThreadJobProvider * iwtjp, void * job_data)
 {
     if (!job_data || !IWorkerThreadJobProviderIsValid(iwtjp)) return false;
     if (iwtjp->jobs_count == iwtjp->jobs_array_size) {
@@ -53,4 +46,34 @@ bool IWorkerThreadJobProviderAddJob(IWorkThreadJobProvider * iwtjp, void * job_d
     }
 
     return false;
+}
+
+bool IWorkerThreadJobProviderFree(IWorkerThreadJobProvider * iwtjp)
+{
+    if (!IWorkerThreadJobProviderIsValid(iwtjp)) return false;
+    if (iwtjp->jobs_count > 0) {
+        for (size_t i = 0; i < iwtjp->jobs_count; i++) {
+            if (iwtjp->jobs[i]) {
+                IWorkerThreadJobFree(iwtjp->jobs[i]);
+                iwtjp->jobs[i] = NULL;
+            }
+        }
+        free(iwtjp->jobs);
+        iwtjp->jobs = NULL;
+        iwtjp->jobs_count = 0;
+    }
+    iwtjp->jobs_array_size = 0;
+    iwtjp->next_job_index = 0;
+    iwtjp->struct_id = 0;
+    free(iwtjp);
+}
+
+bool IWorkerThreadJobProviderHasJobs(IWorkerThreadJobProvider * iwtjp)
+{
+    return IWorkerThreadJobProviderIsValid(iwtjp) && iwtjp->next_job_index < iwtjp->jobs_count - 1;
+}
+
+IWorkerThreadJob * IWorkerThreadJobProviderNextJob(IWorkerThreadJobProvider * iwtjp)
+{
+    return IWorkerThreadJobProviderIsValid(iwtjp) && iwtjp->next_job_index < iwtjp->jobs_count ? iwtjp->jobs[iwtjp->next_job_index++] : NULL;
 }

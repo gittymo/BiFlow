@@ -4,6 +4,7 @@
 #include <pthread.h>
 
 #include "global.h"
+#include "iworkerthreadjobprovider.h"
 
 typedef struct _iworker_thread_controller {
     int struct_id;
@@ -12,6 +13,7 @@ typedef struct _iworker_thread_controller {
     int threads_buffer_size;
     bool stop, running;
     pthread_t handle;
+    IWorkerThreadJobProvider * job_provider;
 } IWorkerThreadController;
 
 IWorkerThreadController * IWorkerThreadControllerCreate();
@@ -27,5 +29,5 @@ bool IWorkerThreadControllerStart(IWorkerThreadController * itc);
 void IWorkerThreadControllerStop(IWorkerThreadController * itc);
 bool IWorkerThreadControllerIsRunning(IWorkerThreadController * itc);
 bool IWorkerThreadControllerIsValid(IWorkerThreadController * iwtc);
-
+bool IWorkerThreadControllerAddJob(IWorkerThreadController * iwtc, void * job_data);
 #endif

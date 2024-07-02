@@ -2,6 +2,7 @@
 #include "iworkerthread.h"
 #include "iworkerthreadjob.h"
 #include "iworkerthreadcontroller.h"
+#include "iworkerthreadjobprovider.h"
 
 /// @brief Creates and initialises a worker thread controller data structure, then passes back a pointer to it's data.
 /// @return Pointer to the worker thread controller (IWorkerThreadController) data structure.
@@ -18,6 +19,7 @@ IWorkerThreadController * IWorkerThreadControllerCreate()
                                                     // list will be resized to allow more additions.
         itc->threads = (IWorkerThread **) malloc(sizeof(IWorkerThread *) * itc->threads_buffer_size); // List of threads allocated to data structure.
         itc->stop = itc->running = false;           // Initially the controller should do nothing until it is asked to start.
+        itc->job_provider = IWorkerThreadJobProviderCreate();  // Create a job provider and store a reference to it.
     }
     return itc; // Return pointer to newly created IWorkerThreadController data structure or NULL if there was not enough memory.
 }
@@ -49,6 +51,10 @@ bool IWorkerThreadControllerFree(IWorkerThreadController * itc)
         free(itc->threads);
         // remove pointer to the list of threads.
         itc->threads = NULL;
+    }
+    if (itc->job_provider) {
+        IWorkerThreadJobProviderFree(itc->job_provider);
+        itc->job_provider = NULL;
     }
     // Free any remaining memory allocated to the IWorkerThreadController data structure.
     free(itc);
@@ -101,7 +107,7 @@ void * IWorkerThreadControllerRun(void * data)
                 bool kill_thread = false;
                 switch (itd->timeout) {
                     case IThreadTimeoutSmart : {
-                        if (itd->jobs_count < 3 && CURRENT_JOB_TIME > ITHREAD_DEFAULT_TIMEOUT_SEC) kill_thread = true;
+                        if (itd->jobs_run < 3 && CURRENT_JOB_TIME > ITHREAD_DEFAULT_TIMEOUT_SEC) kill_thread = true;
                         else if (CURRENT_JOB_TIME > IWorkerThreadGetAverageJobTime(itd) * 2) kill_thread = true;
                     } break;
                     case IThreadTimeoutNone : break;
@@ -230,4 +236,13 @@ bool IWorkerThreadControllerIsRunning(IWorkerThreadController * itc)
 bool IWorkerThreadControllerIsValid(IWorkerThreadController * iwtc)
 {
     return iwtc && iwtc->struct_id == ITHREAD_DATA_STRUCT_ID;
+}
+
+/// @brief Adds a new job to the worker thread controller provider's jobs list.
+/// @param iwtc Pointer to worker thread controller data structure. 
+/// @param job_data Pointer to job data.
+/// @return True if the job was successfully added, false otherwise.
+bool IWorkerThreadControllerAddJob(IWorkerThreadController * iwtc, void * job_data)
+{
+    return iwtc && iwtc->job_provider && job_data && IWorkerThreadJobProviderAddJob(iwtc->job_provider, job_data);
 }

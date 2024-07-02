@@ -18,6 +18,7 @@ typedef int IThreadTimeout;
 typedef struct _iworker_thread IWorkerThread;
 typedef struct _iworker_thread_controller IWorkerThreadController;
 typedef struct _iworker_thread_job IWorkerThreadJob;
+typedef struct _iworker_thread_job_provider IWorkerThreadJobProvider;
 
 #define IThreadTimeoutNone 0
 #define IThreadTimeoutSmart -1

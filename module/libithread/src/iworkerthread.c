@@ -13,11 +13,16 @@ void * IWorkerThreadRun(void * data)
     IWorkerThread * itd = (IWorkerThread *) data;
     if (!IWorkerThreadIsValid(itd) || itd->state != IThreadStateInitialised) return NULL; // It's not so exit immediately.
     else itd->state = IThreadStateRunning; // It is, so set the worker thread state to running.
+
+    IWorkerThreadJobProvider * iwtjp = itd->controller->job_provider;
+
     // Perform processing on any jobs that have been allocated to the thread until it should exit.
-    while (((itd->flag_exit_on_no_jobs && itd->jobs_run < itd->jobs_count) || !itd->flag_exit_on_no_jobs) && itd->state == IThreadStateRunning)
+    while (((itd->flag_exit_on_no_jobs && IWorkerThreadJobProviderHasJobs(iwtjp)) || !itd->flag_exit_on_no_jobs) && itd->state == IThreadStateRunning)
     {
         // Depending on the priority of the worker thread it can process one or more jobs at a time.
-        for (int j = 0; j < itd->priority && itd->current_job && itd->state == IThreadStateRunning; j++) {
+        for (int j = 0; j < itd->priority && IWorkerThreadJobProviderHasJobs(iwtjp) && itd->state == IThreadStateRunning; j++) {
+            itd->current_job = IWorkerThreadJobProviderNextJob(iwtjp);
+            if (!itd->current_job) continue;
             // Record the job processing start time.
             itd->current_job->start_time = time(NULL);
             // Process the job.
@@ -31,8 +36,6 @@ void * IWorkerThreadRun(void * data)
             if (itd->jobSuccessCallbackFunction) {
                 itd->jobSuccessCallbackFunction(itd->current_job);
             }
-            // Get the next available job.
-            itd->current_job = itd->current_job->next_job;
             // Increment the number of jobs processed.
             itd->jobs_run++;
         }
@@ -84,48 +87,14 @@ IWorkerThread * IWorkerThreadCreate(  void (* workFunction)(IWorkerThreadJob *),
         itd->jobFailureCallbackFunction = failureFunction;
         itd->jobSuccessCallbackFunction = successFunction;
         itd->id = _ithread_current_id++;
-        itd->first_job = itd->last_job = itd->current_job = NULL;
-        itd->jobs_count = itd->jobs_run = 0;
+        itd->jobs_run = 0;
+        itd->current_job = NULL;
         itd->controller = itc;
         itd->flag_exit_on_no_jobs = false;
     }
 
     // Return pointer to the worker thread data structure or NULL if we couldn't allocate memory for it.
     return itd;
-}
-
-/// @brief Adds a job to the given worker thread's queue.
-/// @param itd Pointer to the worker thread data structure.
-/// @param job_data Pointer to the job data to be added to the queue. 
-/// @return Pointer to the worker thread job data structure that holds the job data.
-IWorkerThreadJob * IWorkerThreadAddJob(IWorkerThread * itd, void * job_data)
-{
-    // Make sure the calling function has passed in valid parameter values.
-    if (!IWorkerThreadIsValid(itd) || !job_data) return NULL;
-
-    // Create the worker thread job data structure
-    IWorkerThreadJob * itj = IWorkerThreadJobCreate(job_data);
-    if (IWorkerThreadJobIsValid(itj)) {
-        // We've created a valid worker thread job data structure, so assign its id and parent thread details.
-        itj->id = itd->jobs_count;
-        itj->worker_thread = itd;
-
-        // Add the pointer to the worker thread job data structure to the end of the jobs queue.
-        if (!itd->first_job) itd->first_job = itj;
-        else {
-            itd->last_job->next_job = itj;
-        }
-
-        // Update the worker thread data structure so that the last job to do points to the newly created job data structure.
-        itd->last_job = itj;
-        if (itd->current_job == NULL) itd->current_job = itj;
-
-        // Increment the worker thread data structure's job count value.
-        itd->jobs_count++;
-    }
-
-    // Return a pointer to the newly created worker thread job data structure or NULL if one couldn't be created.
-    return itj;
 }
 
 /// @brief Gets the average time a job has taken to process.  The average is taken from the times accumulated over the past 'n'
@@ -169,14 +138,8 @@ bool IWorkerThreadFree(IWorkerThread * itd)
     itd->state = IThreadStateUnusable;
     itd->id = 0;
     itd->flag_exit_on_no_jobs = false;
-    itd->jobs_run = itd->jobs_count = 0;
-    IWorkerThreadJob * itj = itd->first_job, * nitj;
-    while (itj) {
-        nitj = itj->next_job;
-        IWorkerThreadJobFree(itj);
-        itj = nitj;
-    }
-    itd->current_job = itd->last_job = itd->first_job = NULL;
+    itd->jobs_run = 0;
+    itd->current_job = NULL;
     itd->priority = IThreadPriorityNone;
     itd->controller = NULL;
     free(itd);
