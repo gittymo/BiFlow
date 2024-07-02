@@ -163,6 +163,9 @@ IWorkerThread * IWorkerThreadControllerAddWorkerThread(IWorkerThreadController *
     return itd;
 }
 
+/// @brief Indicates if all child worker threads have finished (or have been stopped/killed) and are no longer able to process any more jobs.
+/// @param itc Pointer to worker thread controller data structure.
+/// @return True if the data structure is valid and the child threads under it's control have finished.  False otherwise.
 bool IWorkerThreadControllerChildThreadsDone(IWorkerThreadController * itc)
 {
     bool controller_invalid = !IWorkerThreadControllerIsValid(itc);
@@ -175,6 +178,9 @@ bool IWorkerThreadControllerChildThreadsDone(IWorkerThreadController * itc)
     return threads_done == itc->threads_count;
 }
 
+/// @brief Given a valid worker thread controller data structure, this function will start the worker thread controller on its own thread.
+/// @param itc Pointer to a worker thread controller data structure.
+/// @return True if the data structure was valid, false otherwise.
 bool IWorkerThreadControllerStart(IWorkerThreadController * itc)
 {
     if (!IWorkerThreadControllerIsValid(itc) || itc->threads_count == 0) return false;
@@ -182,20 +188,35 @@ bool IWorkerThreadControllerStart(IWorkerThreadController * itc)
     return true;
 }
 
+/// @brief Requests that the worker thread controller stop.  If the controller thread does not stop in a sensible fashion, it will be killed.
+/// @param itc Pointer to worker thread controller data structure.
 void IWorkerThreadControllerStop(IWorkerThreadController * itc)
 {
+    // Make sure the calling function has provided a sensible worker thread controller data structure.
     if (!IWorkerThreadControllerIsValid(itc) || itc->threads_count == 0) return;
+
+    // Set the stop flag for the controller thread.
     itc->stop = true;
+
+    // Record when the stop request was made.
     const time_t REQUEST_CONTROLLER_STOP_TIME = time(NULL);
+
+    // Wait for five seconds or until the controller has stopped running.
     while (itc->running && time(NULL) < REQUEST_CONTROLLER_STOP_TIME + 5) {
         IThreadSleep(20);
     }
+
+    // Check to see if the controller is still running.
     if (itc->running) {
+        // It is, so kill the controller thread.
         itc->running = false;
         pthread_cancel(itc->handle);
     }
 }
 
+/// @brief Indicates if the worker thread controller is running.
+/// @param itc Pointer to worker thread controller data structure.
+/// @return True if the pointer is valid and the thread is running, false otherwise.
 bool IWorkerThreadControllerIsRunning(IWorkerThreadController * itc)
 {
     bool is_valid = IWorkerThreadControllerIsValid(itc);
@@ -203,6 +224,9 @@ bool IWorkerThreadControllerIsRunning(IWorkerThreadController * itc)
     return is_running;
 }
 
+/// @brief Indicates if the given pointer points to a valid worker thread controller data structure (IWorkerThreadController).
+/// @param iwtc Pointer to worker thread controller data structure.
+/// @return True if pointer points to valid worker thread controller data structure, false otherwise.
 bool IWorkerThreadControllerIsValid(IWorkerThreadController * iwtc)
 {
     return iwtc && iwtc->struct_id == ITHREAD_DATA_STRUCT_ID;
