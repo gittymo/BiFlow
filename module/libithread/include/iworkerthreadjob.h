@@ -1,10 +1,7 @@
 #ifndef COM_PLUS_MEVANSPN_ITHREAD_WORKER_THREAD_JOB
 #define COM_PLUS_MEVANSPN_ITHREAD_WORKER_THREAD_JOB
 
-#include <stdlib.h>
-#include <time.h>
-#include <stdbool.h>
-
+#include "global.h"
 #include "ithreadjobstate.h"
 
 typedef struct _iworker_thread_job {
@@ -19,6 +16,7 @@ typedef struct _iworker_thread_job {
     struct _iworker_thread * worker_thread;
 } IWorkerThreadJob;
 
+IWorkerThreadJob * IWorkerThreadJobCreate(void * data);
 void IWorkerThreadJobFailed(IWorkerThreadJob * iwtj, char * message);
 void IWorkerThreadJobFree(IWorkerThreadJob * itj);
 void * IWorkerThreadJobGetData(IWorkerThreadJob * iwj);

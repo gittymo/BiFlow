@@ -103,18 +103,12 @@ IWorkerThreadJob * IWorkerThreadAddJob(IWorkerThread * itd, void * job_data)
     // Make sure the calling function has passed in valid parameter values.
     if (!IWorkerThreadIsValid(itd) || !job_data) return NULL;
 
-    // Try to create a worker thread job data structure.
-    IWorkerThreadJob * itj = (IWorkerThreadJob *) malloc(sizeof(IWorkerThreadJob));
-    if (itj) {
-        // We've managed to allocate memory for the data structure, so initialise it.
+    // Create the worker thread job data structure
+    IWorkerThreadJob * itj = IWorkerThreadJobCreate(job_data);
+    if (IWorkerThreadJobIsValid(itj)) {
+        // We've created a valid worker thread job data structure, so assign its id and parent thread details.
         itj->id = itd->jobs_count;
-        itj->struct_id = ITHREAD_DATA_STRUCT_ID;
-        itj->state = IThreadJobStateInitialised;
         itj->worker_thread = itd;
-        itj->end_time = itj->start_time = 0;
-        itj->failure_message = NULL;
-        itj->next_job = NULL;
-        itj->data = job_data;
 
         // Add the pointer to the worker thread job data structure to the end of the jobs queue.
         if (!itd->first_job) itd->first_job = itj;

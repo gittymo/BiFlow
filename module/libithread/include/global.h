@@ -2,6 +2,8 @@
 #define COM_PLUS_MEVANSPN_ITHREAD_GLOBAL
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
 
 #include "ithreadstate.h"
 #include "ithreadjobstate.h"

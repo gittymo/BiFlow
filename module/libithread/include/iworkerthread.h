@@ -2,9 +2,6 @@
 #define COM_PLUS_MEVANSPN_ITHREAD_WORKER_THREAD
 
 #include <pthread.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdbool.h>
 
 #include "global.h"
 

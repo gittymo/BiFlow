@@ -2,7 +2,6 @@
 #define COM_PLUS_MEVANSPN_ITHREAD_WORKER_THREAD_CONTROLLER
 
 #include <pthread.h>
-#include <stdbool.h>
 
 #include "global.h"
 

@@ -50,3 +50,19 @@ bool IWorkerThreadJobIsValid(IWorkerThreadJob * iwtj)
 {
     return iwtj && iwtj->struct_id == ITHREAD_DATA_STRUCT_ID && iwtj->state != IThreadJobStateUnusuable;
 }
+
+IWorkerThreadJob * IWorkerThreadJobCreate(void * data)
+{
+    // Try to create a worker thread job data structure.
+    IWorkerThreadJob * itj = (IWorkerThreadJob *) malloc(sizeof(IWorkerThreadJob));
+    if (itj) {
+        // We've managed to allocate memory for the data structure, so initialise it.
+        itj->struct_id = ITHREAD_DATA_STRUCT_ID;
+        itj->state = IThreadJobStateInitialised;
+        itj->end_time = itj->start_time = 0;
+        itj->failure_message = NULL;
+        itj->next_job = NULL;
+        itj->data = data;
+    }
+    return itj;
+}
