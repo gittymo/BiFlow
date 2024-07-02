@@ -17,6 +17,8 @@ int main(int argc, char ** argv)
         }
     }
 
+    LibMemResize(text[2], 131072);
+
     LibMemFreeLocals();
     exit(EXIT_SUCCESS);
 }

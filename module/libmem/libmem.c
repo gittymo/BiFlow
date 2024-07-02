@@ -202,6 +202,11 @@ void * LibMemAllocLocal(size_t required_size_in_bytes, void ** ref_ptr)
 
 void LibMemAllowLocals() 
 {
+    if (!libmem_manager) {
+        libmem_manager = LibMemCreateMemoryBlock();
+        if (!libmem_manager) return;
+        else atexit(LibMemExit);
+    }
     libmem_manager->current_stack_level++;
 }
 
@@ -332,6 +337,7 @@ bool LibMemResize(void * ptr, size_t new_size_bytes)
             LibMemUpdateRefs(libmem_manager);
         }
     }
+    return true;
 }
 
 void LibMemExit()
